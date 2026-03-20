@@ -1,6 +1,44 @@
-import React from 'react'
+import React, { useState } from 'react'
+import axios from 'axios'
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa6";
+import { FaArrowLeft } from "react-icons/fa6";
+import { authDataContext } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+
+
 
 const SignUp = () => {
+  const [show, setShow] = useState(false)
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  let { serverUrl } = useContext(authDataContext)
+
+
+
+  const handleSignUp = async (e) => {
+
+    try {
+      e.preventDefault()
+      let result = await axios.post(serverUrl + "/api/auth/signup", {
+        name,
+        email,
+        password
+      },{withCredentials:true})
+
+      console.log(result)
+
+    } catch (error) {
+      console.log(error)
+
+    }
+
+  }
+
+
+
   return (
     // main container
     <div className='min-h-screen w-full bg-[linear-gradient(135deg,#f4efe7_0%,#f9f6f0_45%,#dfe9dd_100%)] flex overflow-hidden'>
@@ -25,10 +63,15 @@ const SignUp = () => {
         </div> */}
       </div>
 
-     {/* Right side panel */}
+      {/* Right side panel */}
       <div className='relative flex w-[70%] items-center justify-center overflow-hidden px-10 py-12'>
+        <Link to='/' className='absolute top-2 left-2 z-20 flex items-center gap-2 text-white'>
+          <FaArrowLeft />
+          <span>Back to home</span>
+        </Link>
+
         <video
-          className='absolute inset-0 h-full w-full object-cover'
+          className='absolute inset-0 h-full w-full object-cover z-0'
           src='/login_right_side_bg_video2.mp4'
           autoPlay
           muted
@@ -37,7 +80,7 @@ const SignUp = () => {
         />
         {/* <div className='absolute inset-0 bg-white/45 ' /> */}
 
-        <div className='relative w-full max-w-2xl rounded-[2rem] border border-white/60  px-12 py-8 shadow-[0_25px_80px_rgba(46,61,42,0.15)] backdrop-blur-[50px]'>
+        <div className='relative w-full max-w-2xl rounded-[2rem] border border-white/60  px-12 py-8 shadow-[0_25px_80px_rgba(46,61,42,0.15)] backdrop-blur-[50px] z-10'>
           <div className='mb-5 flex items-center justify-between'>
             <div>
               <p className='text-sm font-medium uppercase tracking-[0.3em] text-green-900/60'>Create account</p>
@@ -46,15 +89,18 @@ const SignUp = () => {
                 Plan weekend getaways, save dream stays, and keep every journey in one calm place.
               </p>
             </div>
-           
+
           </div>
 
-          <form className='flex flex-col gap-3'>
+          <form className='flex flex-col gap-3' onSubmit={handleSignUp}>
             <div className='flex flex-col gap-2'>
               <label htmlFor='username' className='text-sm font-medium text-stone-700'>
                 Username
               </label>
               <input
+                required
+                onChange={(e) => { setName(e.target.value) }}
+                value={name}
                 id='username'
                 type='text'
                 placeholder='Enter your username'
@@ -67,6 +113,8 @@ const SignUp = () => {
                 Email
               </label>
               <input
+                onChange={(e) => { setEmail(e.target.value) }}
+                value={email}
                 id='email'
                 type='email'
                 placeholder='Enter your email'
@@ -78,17 +126,28 @@ const SignUp = () => {
               <label htmlFor='password' className='text-sm font-medium text-stone-700'>
                 Password
               </label>
-              <input
-                id='password'
-                type='password'
-                placeholder='Enter your password'
-                className='w-full rounded-2xl border border-stone-200 bg-white/80 px-4 py-2 text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-green-800 focus:bg-white'
-              />
+              <div className='relative'>
+                <input
+                  onChange={(e) => { setPassword(e.target.value) }}
+                  value={password}
+                  id='password'
+                  type={show ? 'text' : 'password'}
+                  placeholder='Enter your password'
+                  className='w-full rounded-2xl border border-stone-200 bg-white/80 px-4 py-2 pr-12 text-stone-800 outline-none transition placeholder:text-stone-400 focus:border-green-800 focus:bg-white'
+                />
+                <button
+                  type='button'
+                  onClick={() => setShow(!show)}
+                  className='absolute right-4 top-1/2 -translate-y-1/2 text-stone-500 transition hover:text-stone-700'
+                >
+                  {show ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
 
             <div className='mt-3 flex items-center justify-between text-sm text-stone-500'>
               <p className='text-white'>Start free and personalize your travel profile anytime.</p>
-              
+
             </div>
 
             <button
@@ -97,6 +156,13 @@ const SignUp = () => {
             >
               Sign Up
             </button>
+
+            <p className='mt-3 text-center text-sm text-white'>
+              Already have an account?{' '}
+              <Link to='/login' className='font-semibold text-green-200 underline underline-offset-4 hover:text-green-100'>
+                Login
+              </Link>
+            </p>
           </form>
         </div>
       </div>
