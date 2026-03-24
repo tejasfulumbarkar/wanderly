@@ -1,13 +1,38 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa6";
 import { FaArrowLeft } from "react-icons/fa6";
+import axios from 'axios'
 
 import { Link } from 'react-router-dom';
+import { authDataContext } from '../context/AuthContext';
 
 
 const Login = () => {
   const [show, setShow] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  let { serverUrl } = useContext(authDataContext)
+
+  const handleLogin = async (e) => {
+
+    try {
+      e.preventDefault()
+      let result = await axios.post(serverUrl + "/api/auth/login", {
+
+        email,
+        password
+      }, { withCredentials: true })
+
+      console.log(result)
+
+    } catch (error) {
+      console.log(error)
+
+    }
+
+  }
 
   return (
     <div className='min-h-screen w-full bg-[linear-gradient(135deg,#f4efe7_0%,#f9f6f0_45%,#dfe9dd_100%)] flex overflow-hidden'>
@@ -41,12 +66,14 @@ const Login = () => {
             </div>
           </div>
 
-          <form className='flex flex-col gap-3'>
+          <form className='flex flex-col gap-3 ' onSubmit={handleLogin}>
             <div className='flex flex-col gap-2'>
               <label htmlFor='email' className='text-sm font-medium text-stone-700'>
                 Email
               </label>
               <input
+                required
+                onChange={(e) => { setEmail(e.target.value) }}
                 id='email'
                 type='email'
                 placeholder='Enter your email'
@@ -60,6 +87,8 @@ const Login = () => {
               </label>
               <div className='relative'>
                 <input
+                required
+                onChange={(e)=>{setPassword(e.target.value)}}
                   id='password'
                   type={show ? 'text' : 'password'}
                   placeholder='Enter your password'

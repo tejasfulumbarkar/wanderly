@@ -14,17 +14,21 @@ const SignUp = () => {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   let { serverUrl } = useContext(authDataContext)
 
 
 
   const handleSignUp = async (e) => {
+    e.preventDefault()
+    setErrorMessage("")
 
     try {
-      e.preventDefault()
+      setIsSubmitting(true)
       let result = await axios.post(serverUrl + "/api/auth/signup", {
-        name,
-        email,
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
         password
       },{withCredentials:true})
 
@@ -32,7 +36,10 @@ const SignUp = () => {
 
     } catch (error) {
       console.log(error)
+      setErrorMessage(error?.response?.data?.message || "Unable to sign up right now. Please try again.")
 
+    } finally {
+      setIsSubmitting(false)
     }
 
   }
@@ -99,7 +106,10 @@ const SignUp = () => {
               </label>
               <input
                 required
-                onChange={(e) => { setName(e.target.value) }}
+                onChange={(e) => {
+                  setName(e.target.value)
+                  if (errorMessage) setErrorMessage("")
+                }}
                 value={name}
                 id='username'
                 type='text'
@@ -113,7 +123,11 @@ const SignUp = () => {
                 Email
               </label>
               <input
-                onChange={(e) => { setEmail(e.target.value) }}
+                required
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  if (errorMessage) setErrorMessage("")
+                }}
                 value={email}
                 id='email'
                 type='email'
@@ -128,7 +142,11 @@ const SignUp = () => {
               </label>
               <div className='relative'>
                 <input
-                  onChange={(e) => { setPassword(e.target.value) }}
+                  required
+                  onChange={(e) => {
+                    setPassword(e.target.value)
+                    if (errorMessage) setErrorMessage("")
+                  }}
                   value={password}
                   id='password'
                   type={show ? 'text' : 'password'}
@@ -150,11 +168,18 @@ const SignUp = () => {
 
             </div>
 
+            {errorMessage && (
+              <p className='rounded-2xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-700'>
+                {errorMessage}
+              </p>
+            )}
+
             <button
               type='submit'
+              disabled={isSubmitting}
               className='mt-2 rounded-2xl bg-green-300 px-4 py-4 text-sm font-medium tracking-[0.18em] text-white uppercase shadow-lg shadow-green-900/20 transition hover:-translate-y-0.5 hover:bg-green-800'
             >
-              Sign Up
+              {isSubmitting ? "Signing Up..." : "Sign Up"}
             </button>
 
             <p className='mt-3 text-center text-sm text-white'>
