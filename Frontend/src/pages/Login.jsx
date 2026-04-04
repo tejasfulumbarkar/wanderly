@@ -4,16 +4,19 @@ import { FaEyeSlash } from "react-icons/fa6";
 import { FaArrowLeft } from "react-icons/fa6";
 import axios from 'axios'
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { authDataContext } from '../context/AuthContext';
+import { userDataContext } from '../context/UserContext';
 
 
 const Login = () => {
-  const [show, setShow] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  let [show, setShow] = useState(false)
+  let [email, setEmail] = useState("")
+  let  [password, setPassword] = useState("")
+  let {userData , setUserData} = useContext(userDataContext)
 
   let { serverUrl } = useContext(authDataContext)
+const navigate = useNavigate();
 
   const handleLogin = async (e) => {
 
@@ -24,6 +27,9 @@ const Login = () => {
         email,
         password
       }, { withCredentials: true })
+
+      setUserData(result.data)
+      navigate("/")
 
       console.log(result)
 

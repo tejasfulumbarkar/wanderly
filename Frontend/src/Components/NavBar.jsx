@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { HiOutlineGlobeAlt } from 'react-icons/hi'
 import { IoSearchOutline } from 'react-icons/io5'
 import { RxHamburgerMenu } from 'react-icons/rx'
@@ -12,11 +14,36 @@ import { IoBedOutline } from "react-icons/io5";
 import { FaTreeCity } from "react-icons/fa6";
 import { BiBuildingHouse } from "react-icons/bi";
 import { FaRegUser } from "react-icons/fa";
+import { authDataContext } from '../context/AuthContext';
+import { userDataContext } from '../context/UserContext'
+
 
 
 const NavBar = () => {
 
     const [popUp , showPopUp] = useState(false)
+    const navigate = useNavigate()
+
+    let { serverUrl } = useContext(authDataContext)
+    let {userData , setUserData} = useContext(userDataContext)
+    const currentUser = userData?.loginUser || userData?.user || userData
+    const userInitial = currentUser?.name?.trim()?.charAt(0)?.toUpperCase()
+
+    const handleLoginClick = () => {
+      showPopUp(false)
+      navigate('/login')
+    }
+
+    const handleLogOut = async () => {
+      try {
+        await axios.post(serverUrl + "/api/auth/logout", {}, { withCredentials: true })
+        showPopUp(false)
+        navigate('/login')
+        setUserData(null)
+      } catch (error) {
+        console.log(error)
+      }
+    }
   return (
     <>
       <header className='w-full border-b border-gray-200 bg-white px-4 sm:px-6 lg:px-8'>
@@ -64,16 +91,17 @@ const NavBar = () => {
               className='flex items-center gap-3 rounded-full border border-gray-300 px-3 py-2 text-gray-700 shadow-sm transition-shadow duration-200 hover:shadow-md'
             >
               <RxHamburgerMenu className='text-[18px]' />
-              <FaRegUser />
+              {!userInitial && <FaRegUser />}
+              {userInitial && <span className='flex h-[30px] w-[30px] items-center justify-center rounded-full bg-black text-white'>{userInitial}</span>}
             </button>
           </div>
         </div>
 
         {popUp && (
           <div className='absolute right-5 top-20 mr-4 h-[250px] w-[200px] rounded border border-gray-700 bg-slate-100'>
-            <ul className='flex h-full w-full flex-col items-start justify-around p-[10px] text-[17px]'>
-              <li className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>Login</li>
-              <li className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>Logout</li>
+             <ul className='flex h-full w-full flex-col items-start justify-around p-[10px] text-[17px]'>
+              <li onClick={handleLoginClick} className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>Login</li>
+              <li onClick={handleLogOut} className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>Logout</li>
               <div className='h-[1px] w-full bg-gray-400'></div>
               <li className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>List your Home</li>
               <li className='w-full cursor-pointer px-[10px] hover:bg-slate-300'>My listing</li>
@@ -82,27 +110,28 @@ const NavBar = () => {
           </div>
         )}
 
-        <div className='pb-4 md:hidden'>
-          <div className='flex h-[52px] items-center rounded-full border border-gray-300 bg-white pl-5 pr-2 shadow-sm'>
-            <input
-              type='text'
-              placeholder='Any Where | Any Location | Any City'
-              className='flex-1 bg-transparent pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none'
-            />
+        <div className="pb-4 md:hidden w-full overflow-x-auto">
+  <div className="flex min-w-[500px] h-[52px] items-center rounded-full border border-gray-300 bg-white pl-5 pr-2 shadow-sm flex-shrink-0">
+    
+    <input
+      type="text"
+      placeholder="Any Where | Any Location | Any City"
+      className="flex-1 bg-transparent pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none"
+    />
 
-            <button
-              type='button'
-              aria-label='Search'
-              className='flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white'
-            >
-              <IoSearchOutline className='text-lg' />
-            </button>
-          </div>
-        </div>
+    <button
+      type="button"
+      className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white"
+    >
+      <IoSearchOutline className="text-lg" />
+    </button>
+
+  </div>
+</div>
 
 
       </header>
-      <div className='w-[100vw] h-[85px] bg-white flex items-center justify-center cursor-pointer gap-[40px]' >
+      <div className='w-[100vw] h-[85px] bg-white flex items-center justify-center cursor-pointer gap-[40px] overflow-auto' >
         <div className='flex justify-center items-center flex-col hover:border-b-[1px] border-black'>
           <MdWhatshot />
           <h3>Trending</h3>

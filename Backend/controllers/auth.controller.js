@@ -57,7 +57,9 @@ export const logIn = async(req,res)=>{
             maxAge: 7*24*60*60*1000
         })
 
-         return res.status(201).json({loginUser})
+        const safeUser = await User.findById(loginUser._id).select("-password")
+
+         return res.status(201).json(safeUser)
         
         
         
